@@ -21,7 +21,7 @@ type TapeMachine = Zipper Word8
 type BF a = StateT TapeMachine IO a
 
 instructions :: [Char]
-instructions = "<>+-.,[]!#"
+instructions = "<>+-.,[]"
 
 eval :: [Char] -> IO ()
 eval = void . exec
@@ -51,9 +51,7 @@ findIntent '+' = modify $ Zipper.alter (+ 1)
 findIntent '-' = modify $ Zipper.alter (subtract 1)
 findIntent '.' = gets Zipper.focus >>= liftIO . writeC
 findIntent ',' = liftIO readC >>= modify . Zipper.alter . maybe id const
-findIntent '!' =
-  get >>= liftIO . putStrLn . ('\n' :) . show >> void (liftIO getLine)
-findIntent _ = return ()
+findIntent _   = return ()
 
 writeC :: Word8 -> IO ()
 writeC x = do
