@@ -1,10 +1,7 @@
 module Parsing where
 
 import           Text.Parsec
-import           Data.Functor                   ( (<$)
-                                                , void
-                                                )
-import           Control.Arrow                  ( ArrowChoice(left) )
+import           Data.Functor                   ( (<$) )
 import           BF                             ( instructions )
 
 data BFSymbol = Instructions String | Loop [BFSymbol]
