@@ -1,0 +1,53 @@
+name:                fuckhaskell
+version:             0.1.0.0
+github:              "juliagracedefoor/fuckhaskell"
+license:             BSD3
+author:              "Julia DeFoor"
+maintainer:          "juliagracedefoor@gmail.com"
+copyright:           "Julia DeFoor"
+
+extra-source-files:
+- README.md
+- ChangeLog.md
+
+# Metadata used when publishing your package
+# synopsis:            Short description of your package
+# category:            Web
+
+# To avoid duplicated efforts in documentation and dealing with the
+# complications of embedding Haddock markup inside cabal files, it is
+# common to point users to the README.md file.
+description:         Please see the README on GitHub at <https://github.com/juliagracedefoor/fuckhaskell#readme>
+
+dependencies:
+- base >= 4.7 && < 5
+- mtl
+- containers
+- vector
+- parsec
+
+library:
+  source-dirs: src
+
+executables:
+  fuckhaskell-exe:
+    main:                Main.hs
+    source-dirs:         app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - fuckhaskell
+
+tests:
+  fuckhaskell-test:
+    main:                Spec.hs
+    source-dirs:         test
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - fuckhaskell
+    - hspec
