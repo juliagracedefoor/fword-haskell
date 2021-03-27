@@ -13,38 +13,38 @@ import qualified BF
 
 -- peval == "parse and evaluate"
 peval :: String -> IO ()
-peval = either print BF.eval . bfParse
+peval = either print BF.eval . bfParse ""
 
 -- pexec == "parse and execute"
 pexec :: String -> IO ()
-pexec = either print (print <=< BF.exec) . bfParse
-
-bfParse :: String -> Either ParseError [BF.Symbol]
-bfParse = parse bfParser ""
+pexec = either print (print <=< BF.exec) . bfParse ""
 
 bfParseFile :: String -> IO (Either ParseError [BF.Symbol])
-bfParseFile fp = parse bfParser fp <$> readFile fp
+bfParseFile fp = bfParse fp <$> readFile fp
 
-bfParser :: Parsec String () [BF.Symbol]
-bfParser = bfParserWith eof
+bfParse :: String -> String -> Either ParseError [BF.Symbol]
+bfParse = parse (bfCode eof)
 
-bfParserWith :: Parsec String () a -> Parsec String () [BF.Symbol]
-bfParserWith endParser = do
-  symbol <-
-    (Just <$> instructionsParser)
-    <|> (Just <$> loopParser)
-    <|> (Nothing <$ endParser)
-  case symbol of
-    Just s  -> fmap (s :) (bfParserWith endParser)
-    Nothing -> return []
+bfCode :: Parsec String () a -> Parsec String () [BF.Symbol]
+bfCode terminator = do
+  skipMany fluff
+  result <- nextSymbol
+  continuation result
+ where
+  nextSymbol   = (Just <$> symbol) <|> (Nothing <$ terminator)
+  continuation = maybe (return []) (\s -> fmap (s :) (bfCode terminator))
 
-instructionsParser :: Parsec String () BF.Symbol
-instructionsParser =
-  BF.Instructions . filter (`elem` BF.characters) <$> many1 (noneOf "[]")
+symbol :: Parsec String () BF.Symbol
+symbol = (BF.Instructions <$> instructions) <|> (BF.Loop <$> loop)
 
-loopParser :: Parsec String () BF.Symbol
-loopParser = BF.Loop
-  <$> between (char '[') (char ']') (bfParserWith . lookAhead $ char ']')
+instructions :: Parsec String () String
+instructions = filter (`elem` BF.characters) <$> many1 (noneOf "[]")
 
+loop :: Parsec String () [BF.Symbol]
+loop = between (char '[') (char ']') (bfCode endOfLoop)
+  where endOfLoop = lookAhead $ char ']'
+
+fluff :: Parsec String () Char
+fluff = noneOf BF.characters
 
 

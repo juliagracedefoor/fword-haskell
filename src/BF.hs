@@ -17,8 +17,8 @@ import           System.IO
 import           Zipper                         ( Zipper )
 import qualified Zipper
 
-type TapeMachine = Zipper Word8
 type BF a = StateT TapeMachine IO a
+type TapeMachine = Zipper Word8
 
 data Symbol = Instructions String | Loop [Symbol]
 
