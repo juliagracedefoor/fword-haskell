@@ -1,10 +1,10 @@
 module Main where
 
 import qualified BF
-import           Control.Monad
-import           System.Exit
-import           System.IO
-import           System.Environment
+import           Parsing                        ( bfParseFile )
+import           Control.Monad                  ( when )
+import           System.Exit                    ( die )
+import           System.Environment             ( getArgs )
 
 usage :: String
 usage = "usage: fuckhaskell [FILENAME]"
@@ -13,6 +13,6 @@ main :: IO ()
 main = do
   args <- getArgs
   when (null args) (die usage)
-  contents <- readFile $ head args
-  BF.eval contents
+  symbols <- bfParseFile $ head args
+  either print BF.eval symbols
 

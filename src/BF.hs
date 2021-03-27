@@ -1,10 +1,9 @@
 module BF
-  ( eval
+  ( Symbol(..)
+  , characters
+  , eval
   , exec
   , runCommandsOn
-  , findIntents
-  , findIntent
-  , instructions
   )
 where
 
@@ -20,29 +19,29 @@ import qualified Zipper
 type TapeMachine = Zipper Word8
 type BF a = StateT TapeMachine IO a
 
-instructions :: [Char]
-instructions = "<>+-.,[]"
+data Symbol = Instructions String | Loop [Symbol]
 
-eval :: [Char] -> IO ()
+instance Show Symbol where
+  show (Instructions s ) = "I " ++ "|" ++ s ++ "|"
+  show (Loop         xs) = "L " ++ show xs
+
+characters :: [Char]
+characters = "<>+-.,[]"
+
+eval :: [Symbol] -> IO ()
 eval = void . exec
 
-exec :: [Char] -> IO TapeMachine
+exec :: [Symbol] -> IO TapeMachine
 exec = flip runCommandsOn $ Zipper.new 30000
 
-runCommandsOn :: [Char] -> TapeMachine -> IO TapeMachine
-runCommandsOn = execStateT . findIntents . filter (`elem` instructions)
+runCommandsOn :: [Symbol] -> TapeMachine -> IO TapeMachine
+runCommandsOn = execStateT . mapM_ processSymbol
 
-findIntents :: [Char] -> BF ()
-findIntents cs = do
-  let (before   , remaining) = break (== '[') cs
-      (bracketed, after    ) = brackets remaining
-  mapM_ findIntent before
-  unless (null remaining) $ loop bracketed >> findIntents after
-
-loop :: [Char] -> BF ()
-loop cs = do
+processSymbol :: Symbol -> BF ()
+processSymbol (Instructions cs     ) = mapM_ findIntent cs
+processSymbol (Loop         innards) = do
   x <- gets Zipper.focus
-  unless (x == 0) $ findIntents cs >> loop cs
+  unless (x == 0) $ mapM_ processSymbol innards >> processSymbol (Loop innards)
 
 findIntent :: Char -> BF ()
 findIntent '>' = modify Zipper.right
@@ -63,20 +62,3 @@ readC :: IO (Maybe Word8)
 readC = do
   eof <- isEOF
   if eof then return Nothing else fmap (Just . fromIntegral . ord) getChar
-
-brackets :: [Char] -> ([Char], [Char])
-brackets xs = (safeTail l, safeTail r)
- where
-  i      = bracketSplit 0 0 xs
-  (l, r) = splitAt i xs
-
-bracketSplit :: Int -> Int -> [Char] -> Int
-bracketSplit _ i [] = i
-bracketSplit n i (x : xs) | x == ']' && n == 1 = i
-                          | x == '['           = bracketSplit (n + 1) (i + 1) xs
-                          | x == ']'           = bracketSplit (n - 1) (i + 1) xs
-                          | otherwise          = bracketSplit n (i + 1) xs
-
-safeTail :: [a] -> [a]
-safeTail []       = []
-safeTail (x : xs) = xs

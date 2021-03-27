@@ -1,22 +1,23 @@
-module Parsing where
+module Parsing
+  ( bfParseFile
+  , bfParse
+  )
+where
 
 import           Text.Parsec
 import           Data.Functor                   ( (<$) )
-import           BF                             ( instructions )
+import qualified BF
 
-data BFSymbol = Instructions String | Loop [BFSymbol]
+bfParse :: String -> Either ParseError [BF.Symbol]
+bfParse = parse bfParser ""
 
-instance Show BFSymbol where
-  show (Instructions s ) = "I " ++ "|" ++ s ++ "|"
-  show (Loop         xs) = "L " ++ show xs
-
-bfParseFile :: String -> IO (Either ParseError [BFSymbol])
+bfParseFile :: String -> IO (Either ParseError [BF.Symbol])
 bfParseFile fp = parse bfParser fp <$> readFile fp
 
-bfParser :: Parsec String () [BFSymbol]
+bfParser :: Parsec String () [BF.Symbol]
 bfParser = bfParserWith eof
 
-bfParserWith :: Parsec String () a -> Parsec String () [BFSymbol]
+bfParserWith :: Parsec String () a -> Parsec String () [BF.Symbol]
 bfParserWith endParser = do
   symbol <-
     (Just <$> instructionsParser)
@@ -26,13 +27,13 @@ bfParserWith endParser = do
     Just s  -> fmap (s :) (bfParserWith endParser)
     Nothing -> return []
 
-instructionsParser :: Parsec String () BFSymbol
+instructionsParser :: Parsec String () BF.Symbol
 instructionsParser =
-  Instructions . filter (`elem` instructions) <$> many1 (noneOf "[]")
+  BF.Instructions . filter (`elem` BF.characters) <$> many1 (noneOf "[]")
 
-loopParser :: Parsec String () BFSymbol
-loopParser =
-  Loop <$> between (char '[') (char ']') (bfParserWith . lookAhead $ char ']')
+loopParser :: Parsec String () BF.Symbol
+loopParser = BF.Loop
+  <$> between (char '[') (char ']') (bfParserWith . lookAhead $ char ']')
 
 
 
