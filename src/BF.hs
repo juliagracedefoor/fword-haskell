@@ -1,9 +1,10 @@
 module BF
   ( Symbol(..)
+  , TapeMachine
   , characters
   , eval
   , exec
-  , runCommandsOn
+  , runInstructionsOn
   )
 where
 
@@ -32,10 +33,10 @@ eval :: [Symbol] -> IO ()
 eval = void . exec
 
 exec :: [Symbol] -> IO TapeMachine
-exec = flip runCommandsOn $ Zipper.new 30000
+exec = runInstructionsOn $ Zipper.new 30000
 
-runCommandsOn :: [Symbol] -> TapeMachine -> IO TapeMachine
-runCommandsOn = execStateT . mapM_ processSymbol
+runInstructionsOn :: TapeMachine -> [Symbol] -> IO TapeMachine
+runInstructionsOn = flip $ execStateT . mapM_ processSymbol
 
 processSymbol :: Symbol -> BF ()
 processSymbol (Instructions cs     ) = mapM_ findIntent cs

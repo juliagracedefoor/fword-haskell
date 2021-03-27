@@ -1,12 +1,23 @@
 module Parsing
   ( bfParseFile
   , bfParse
+  , peval
+  , pexec
   )
 where
 
 import           Text.Parsec
 import           Data.Functor                   ( (<$) )
+import           Control.Monad                  ( (<=<) )
 import qualified BF
+
+-- peval == "parse and evaluate"
+peval :: String -> IO ()
+peval = either print BF.eval . bfParse
+
+-- pexec == "parse and execute"
+pexec :: String -> IO ()
+pexec = either print (print <=< BF.exec) . bfParse
 
 bfParse :: String -> Either ParseError [BF.Symbol]
 bfParse = parse bfParser ""
