@@ -7,7 +7,6 @@ module Parsing
 where
 
 import           Text.Parsec
-import           Data.Functor                   ( (<$) )
 import           Control.Monad                  ( (<=<) )
 import qualified BF
 

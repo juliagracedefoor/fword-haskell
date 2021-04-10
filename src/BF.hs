@@ -5,6 +5,7 @@ module BF
   , eval
   , exec
   , runInstructionsOn
+  , newTape
   )
 where
 
@@ -33,16 +34,19 @@ eval :: [Symbol] -> IO ()
 eval = void . exec
 
 exec :: [Symbol] -> IO TapeMachine
-exec = runInstructionsOn $ Zipper.new 30000
+exec = runInstructionsOn newTape
 
 runInstructionsOn :: TapeMachine -> [Symbol] -> IO TapeMachine
 runInstructionsOn = flip $ execStateT . mapM_ processSymbol
 
+newTape :: TapeMachine
+newTape = Zipper.new 30000
+
 processSymbol :: Symbol -> BF ()
-processSymbol (Instructions cs     ) = mapM_ findIntent cs
-processSymbol (Loop         innards) = do
-  x <- gets Zipper.focus
-  unless (x == 0) $ mapM_ processSymbol innards >> processSymbol (Loop innards)
+processSymbol (Instructions cs) = mapM_ findIntent cs
+processSymbol l@(Loop innards) =
+  gets Zipper.focus >>= (\x -> unless (x == 0) $ loopOnce >> processSymbol l)
+  where loopOnce = mapM_ processSymbol innards
 
 findIntent :: Char -> BF ()
 findIntent '>' = modify Zipper.right
