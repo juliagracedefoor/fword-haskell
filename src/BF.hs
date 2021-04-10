@@ -7,16 +7,17 @@ module BF
   )
 where
 
+import           BF.Zipper                      ( Zipper )
+import qualified BF.Zipper                     as Zipper
 import           Control.Monad.State
-import           Data.Char                      ( ord
-                                                , chr
+import           Data.Char                      ( chr
+                                                , ord
                                                 )
 import           Data.Word                      ( Word8 )
 import           System.IO
-import           BF.Zipper                      ( Zipper )
-import qualified BF.Zipper                     as Zipper
 
 type BF a = StateT TapeMachine IO a
+
 type TapeMachine = Zipper Word8
 
 data Instruction = MoveLeft | MoveRight | AddOne | SubtractOne | WriteChar | ReadChar | Loop [Instruction]

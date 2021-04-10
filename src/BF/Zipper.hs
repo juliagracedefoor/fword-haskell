@@ -1,4 +1,5 @@
 {-# LANGUAGE FlexibleInstances #-}
+
 module BF.Zipper
   ( Zipper(..)
   , left
@@ -11,13 +12,13 @@ module BF.Zipper
 where
 
 import           Data.Foldable                  ( toList )
+import           Data.Maybe                     ( fromJust )
 import           Data.Sequence                  ( Seq(..)
                                                 , (<|)
                                                 , (|>)
                                                 )
 import qualified Data.Sequence                 as Seq
 import           Data.Word                      ( Word8 )
-import           Data.Maybe                     ( fromJust )
 
 data Zipper a = Zipper (Seq a) a (Seq a)
 

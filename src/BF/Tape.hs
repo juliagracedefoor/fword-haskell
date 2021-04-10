@@ -8,14 +8,14 @@ module BF.Tape
   )
 where
 
-import           Data.Word                      ( Word8 )
 import           Data.Vector.Unboxed            ( Vector
-                                                , (//)
                                                 , (!)
+                                                , (//)
                                                 )
 import qualified Data.Vector.Unboxed           as V
+import           Data.Word                      ( Word8 )
 
-data Tape a = Tape { index :: Int, cells :: Vector a }
+data Tape a = Tape {index :: Int, cells :: Vector a}
 
 new :: Int -> Tape Word8
 new x = Tape 0 (V.replicate x 0)

@@ -6,11 +6,11 @@ module BF.Parsing
   )
 where
 
+import qualified BF
+import           Control.Monad                  ( (<=<) )
+import           Data.Maybe                     ( catMaybes )
 import           Text.Parsec             hiding ( parse )
 import qualified Text.Parsec                   as Parsec
-import           Control.Monad                  ( (<=<) )
-import qualified BF
-import           Data.Maybe                     ( catMaybes )
 
 -- peval == "parse and evaluate"
 peval :: String -> IO ()
