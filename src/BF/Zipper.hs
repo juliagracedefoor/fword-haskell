@@ -1,5 +1,5 @@
 {-# LANGUAGE FlexibleInstances #-}
-module Zipper
+module BF.Zipper
   ( Zipper(..)
   , left
   , right

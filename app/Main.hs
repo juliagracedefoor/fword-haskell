@@ -1,7 +1,7 @@
 module Main where
 
 import qualified BF
-import           Parsing                        ( bfParseFile )
+import qualified BF.Parsing                    as BF
 import           Control.Monad                  ( when )
 import           System.Exit                    ( die )
 import           System.Environment             ( getArgs )
@@ -13,6 +13,6 @@ main :: IO ()
 main = do
   args <- getArgs
   when (null args) (die usage)
-  instructions <- bfParseFile $ head args
+  instructions <- BF.parseFile $ head args
   either print BF.eval instructions
 

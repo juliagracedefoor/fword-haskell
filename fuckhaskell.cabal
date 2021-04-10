@@ -26,9 +26,9 @@ source-repository head
 library
   exposed-modules:
       BF
-      Parsing
-      Tape
-      Zipper
+      BF.Parsing
+      BF.Tape
+      BF.Zipper
   other-modules:
       Paths_fuckhaskell
   hs-source-dirs:

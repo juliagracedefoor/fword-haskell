@@ -13,8 +13,8 @@ import           Data.Char                      ( ord
                                                 )
 import           Data.Word                      ( Word8 )
 import           System.IO
-import           Zipper                         ( Zipper )
-import qualified Zipper
+import           BF.Zipper                      ( Zipper )
+import qualified BF.Zipper                     as Zipper
 
 type BF a = StateT TapeMachine IO a
 type TapeMachine = Zipper Word8

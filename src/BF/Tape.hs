@@ -1,4 +1,4 @@
-module Tape
+module BF.Tape
   ( Tape(..)
   , left
   , right
