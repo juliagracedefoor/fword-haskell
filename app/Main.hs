@@ -13,6 +13,6 @@ main :: IO ()
 main = do
   args <- getArgs
   when (null args) (die usage)
-  symbols <- bfParseFile $ head args
-  either print BF.eval symbols
+  instructions <- bfParseFile $ head args
+  either print BF.eval instructions
 

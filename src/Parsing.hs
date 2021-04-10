@@ -9,6 +9,7 @@ where
 import           Text.Parsec
 import           Control.Monad                  ( (<=<) )
 import qualified BF
+import           Data.Maybe                     ( catMaybes )
 
 -- peval == "parse and evaluate"
 peval :: String -> IO ()
@@ -18,21 +19,29 @@ peval = either print BF.eval . bfParse ""
 pexec :: String -> IO ()
 pexec = either print (print <=< BF.exec) . bfParse ""
 
-bfParseFile :: String -> IO (Either ParseError [BF.Symbol])
+bfParseFile :: String -> IO (Either ParseError [BF.Instruction])
 bfParseFile name = bfParse name <$> readFile name
 
-bfParse :: String -> String -> Either ParseError [BF.Symbol]
-bfParse = parse (symbolsTill eof)
+bfParse :: String -> String -> Either ParseError [BF.Instruction]
+bfParse = parse (instructionsTill eof)
 
-symbolsTill :: Parsec String () a -> Parsec String () [BF.Symbol]
-symbolsTill = manyTill symbol
-  where symbol = (BF.Instructions <$> instructions) <|> (BF.Loop <$> loop)
+loop :: Parsec String () [BF.Instruction]
+loop = between (char '[') (char ']') innards
+  where innards = instructionsTill $ lookAhead (char ']')
 
-instructions :: Parsec String () String
-instructions = filter (`elem` BF.characters) <$> many1 (noneOf "[]")
+instructionsTill :: Parsec String () end -> Parsec String () [BF.Instruction]
+instructionsTill = fmap catMaybes . manyTill symbol
+  where symbol = (Just <$> instruction) <|> (Nothing <$ fluffChar)
 
-loop :: Parsec String () [BF.Symbol]
-loop = between (char '[') (char ']') (symbolsTill endOfLoop)
-  where endOfLoop = lookAhead $ char ']'
+instruction :: Parsec String () BF.Instruction
+instruction =
+  (BF.MoveLeft <$ char '<')
+    <|> (BF.MoveRight <$ char '>')
+    <|> (BF.AddOne <$ char '+')
+    <|> (BF.SubtractOne <$ char '-')
+    <|> (BF.WriteChar <$ char '.')
+    <|> (BF.ReadChar <$ char ',')
+    <|> (BF.Loop <$> loop)
 
-
+fluffChar :: Parsec String () Char
+fluffChar = noneOf "<>+-.,[]"
