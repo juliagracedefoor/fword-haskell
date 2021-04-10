@@ -27,7 +27,8 @@ library
   exposed-modules:
       BF
       BF.Parsing
-      BF.Tape
+      BF.Stateful
+      BF.Util
       BF.Zipper
   other-modules:
       Paths_fuckhaskell

@@ -7,14 +7,13 @@ module BF
   )
 where
 
+import           BF.Util                        ( readChar
+                                                , writeChar
+                                                )
 import           BF.Zipper                      ( Zipper )
 import qualified BF.Zipper                     as Zipper
 import           Control.Monad.State
-import           Data.Char                      ( chr
-                                                , ord
-                                                )
 import           Data.Word                      ( Word8 )
-import           System.IO
 
 type BF a = StateT TapeMachine IO a
 
@@ -43,14 +42,3 @@ perform l@(Loop xs) = do
   unless (x == 0) $ do
     mapM_ perform xs
     perform l
-
-writeChar :: Word8 -> IO ()
-writeChar x = do
-  let c = chr . fromIntegral $ x
-  putChar c
-  hFlush stdout
-
-readChar :: IO (Maybe Word8)
-readChar = do
-  eof <- isEOF
-  if eof then return Nothing else fmap (Just . fromIntegral . ord) getChar

@@ -1,6 +1,6 @@
 module Main where
 
-import qualified BF
+import qualified BF.Stateful                   as BF
 import qualified BF.Parsing                    as BF
 import           Control.Monad                  ( when )
 import           System.Environment             ( getArgs )
